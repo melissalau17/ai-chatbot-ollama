@@ -5,5 +5,5 @@ colorFrom: red
 colorTo: blue
 sdk: streamlit
 sdk_version: 1.25.0
-app_file: src/streamlit-ollama-chatbot.py
+app_file: streamlit-ollama-chatbot.py
 ---
