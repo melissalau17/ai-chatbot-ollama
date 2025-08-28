@@ -1,6 +1,6 @@
 ---
 title: My Local Chatbot
-emoji: 
+emoji: "⭐"
 colorFrom: red
 colorTo: blue
 sdk: streamlit
