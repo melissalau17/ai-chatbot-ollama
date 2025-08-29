@@ -9,8 +9,8 @@ import os
 # --- Model Definitions ---
 # A dictionary mapping display names to model file paths and types
 MODEL_MAP = {
-    "Llama-2 (7B)": {
-        "path": "/app/models/llama-2-7b-chat.gguf",
+    "TinyLlama (1.1B)": {
+        "path": "/app/models/tinyllama.gguf",
         "type": "llama"
     },
     "Deepseek-Coder (1.3B)": {

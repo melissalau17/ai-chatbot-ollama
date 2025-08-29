@@ -13,11 +13,11 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 RUN mkdir -p /app/models
 
-# Download a tiny Llama model during the build
-RUN curl -L https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/resolve/main/llama-2-7b-chat.Q4_K_M.gguf \
-    -o /app/models/llama-2-7b-chat.gguf
+# Download the tinyllama model during the build
+RUN curl -L https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v0.4-GGUF/resolve/main/tinyllama-1.1b-chat-v0.4.Q4_0.gguf \
+    -o /app/models/tinyllama.gguf
 
-# Download a tiny Deepseek model during the build
+# Download the Deepseek model during the build
 RUN curl -L https://huggingface.co/TheBloke/deepseek-coder-1.3B-base-GGUF/resolve/main/deepseek-coder-1.3b-base-q4_K_M.gguf \
     -o /app/models/deepseek-coder-1.3b.gguf
 
