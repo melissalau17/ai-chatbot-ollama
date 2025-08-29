@@ -2,3 +2,4 @@ streamlit
 langchain
 ctransformers
 langchain-community
+huggingface-hub
