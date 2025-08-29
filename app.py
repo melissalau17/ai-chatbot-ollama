@@ -8,16 +8,15 @@ from huggingface_hub import hf_hub_download
 import os
 
 # --- Model Definitions ---
-# A dictionary mapping display names to model info
 MODEL_MAP = {
     "TinyLlama (1.1B)": {
-        "repo_id": "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF",
-        "filename": "tinyllama-1.1b-chat-v1.0.Q4_0.gguf",
+        "repo_id": "TheBloke/TinyLlama-1.1B-Chat-v0.4-GGUF",
+        "filename": "tinyllama-1.1b-chat-v0.4.Q4_0.gguf",
         "type": "llama"
     },
     "Deepseek-Coder (1.3B)": {
-        "repo_id": "TheBloke/deepseek-coder-1.3B-base-GGUF",
-        "filename": "deepseek-coder-1.3b-base-q4_K_M.gguf",
+        "repo_id": "TheBloke/deepseek-coder-1.3b-base-GGUF",
+        "filename": "deepseek-coder-1.3b-base.q4_K_M.gguf",
         "type": "deepseek"
     }
 }
@@ -31,13 +30,8 @@ def download_model_from_hub(repo_id, filename):
 
 @st.cache_resource
 def load_llm(model_name):
-    """Loads the model once and caches it."""
     model_info = MODEL_MAP[model_name]
-    
-    # Download the model file first
     model_path = download_model_from_hub(model_info["repo_id"], model_info["filename"])
-
-    # Now load the model using the local file path
     llm = CTransformers(
         model=model_path,
         model_type=model_info["type"],
@@ -49,11 +43,9 @@ def load_llm(model_name):
 st.set_page_config(layout="wide")
 st.title("My Local Chatbot")
 
-# Sidebar Inputs
 st.sidebar.header("Settings")
 selected_model_name = st.sidebar.selectbox("Choose a Model", list(MODEL_MAP.keys()))
 
-# Load the selected model
 llm = load_llm(selected_model_name)
 st.success(f"Model '{selected_model_name}' loaded successfully!")
 
@@ -80,6 +72,7 @@ def clear_memory():
 if st.sidebar.button("Clear Conversation History"):
     clear_memory()
 
+# --- CORRECTED: Summary chain is now defined globally ---
 summary_prompt_template = PromptTemplate(
     input_variables=["chat_history"],
     template="You are a summarizer. Summarize the following conversation to preserve key information and context. \n\n{chat_history}"
@@ -101,15 +94,31 @@ if st.sidebar.button("Summarize Chat"):
         summary = summarize_chat()
         st.success(summary)
 
-prompt_template = PromptTemplate(
-    input_variables=["summary", "history", "human_input"],
-    template="""You are a helpful assistant.
+# --- Model-specific prompt templates ---
+if "Llama" in selected_model_name:
+    template = """[INST]
+    You are a helpful assistant.
     Current conversation summary:
     {summary}
     Conversation history:
     {history}
     User: {human_input}
+    [/INST]
     Assistant:"""
+elif "Deepseek" in selected_model_name:
+    template = """<|im_start|>system
+    You are a helpful assistant.
+    Current conversation summary:
+    {summary}<|im_end|>
+    <|im_start|>user
+    {history}
+    {human_input}<|im_end|>
+    <|im_start|>assistant
+    """
+
+prompt_template = PromptTemplate(
+    input_variables=["summary", "history", "human_input"],
+    template=template
 )
 
 chain = prompt_template | llm
@@ -124,7 +133,7 @@ def trim_memory():
         history_str = ""
         for msg in history_to_summarize:
             history_str += f"{msg['role']}: {msg['content']}\n"
-        new_summary = get_summary(history_str)
+        new_summary = summary_chain.invoke({"chat_history": history_str})
         st.session_state.summary += "\n" + new_summary
         st.session_state.chat_history = st.session_state.chat_history[(len(st.session_state.chat_history) - MAX_HISTORY * 2):]
 
