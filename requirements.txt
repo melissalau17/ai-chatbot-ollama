@@ -4,3 +4,4 @@ streamlit
 langchain
 langchain-ollama
 langchain-community
+huggingface_hub
