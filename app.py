@@ -9,7 +9,7 @@ import os
 # --- Ollama Setup ---
 def pull_models():
     """Pulls all required models."""
-    models_to_pull = ["tinyllama", "deepseek-coder:1.3b"]
+    models_to_pull = ["tinyllama", "deepseek-coder:1.3b-instruct-q4_K_M"]
     st.write(f"Pulling models: {', '.join(models_to_pull)}...")
     
     # Use the official ollama client to pull models.
@@ -33,7 +33,7 @@ if "ollama_pulled" not in st.session_state:
 
 # --- Sidebar Inputs ---
 st.sidebar.header("Settings")
-model_options = ["tinyllama", "deepseek-coder:1.3b"]
+model_options = ["tinyllama", "deepseek-coder:1.3b-instruct-q4_K_M"]
 MODEL = st.sidebar.selectbox("Choose a Model", model_options)
 
 MAX_HISTORY = st.sidebar.number_input("Max History", min_value=1, max_value=10, value=2, step=1)
