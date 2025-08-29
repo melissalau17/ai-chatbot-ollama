@@ -5,15 +5,27 @@ FROM python:3.13.5-slim
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+# DEBIAN_FRONTEND is set to noninteractive to prevent prompts
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     git \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# --- Add Ollama Installation ---
-# Download and install Ollama
-RUN curl -fsSL https://ollama.com/install.sh | sh
+# --- Manual Ollama Installation ---
+# This is the new, robust method.
+# Download the latest Linux binary from Ollama's GitHub releases
+# The URL below is a generic way to get the latest release
+RUN curl -L https://github.com/ollama/ollama/releases/latest/download/ollama-linux-amd64.tgz \
+    -o /tmp/ollama-linux-amd64.tgz
+
+# Extract the tarball and place the binary directly in /usr/local/bin/
+RUN tar -xzf /tmp/ollama-linux-amd64.tgz -C /usr/local/bin/
+
+# Remove the temporary file
+RUN rm /tmp/ollama-linux-amd64.tgz
 
 # Copy your application files
 COPY requirements.txt ./
