@@ -4,27 +4,21 @@ from langchain.memory import ConversationBufferMemory
 from langchain.memory.chat_message_histories import ChatMessageHistory
 from langchain.prompts import PromptTemplate
 from langchain_core.runnables import RunnableSequence
-import subprocess
-import time
+import os
 
 # --- Ollama Setup ---
-def start_ollama_and_pull_models():
-    """Starts the Ollama server and pulls all required models."""
-    st.write("Starting Ollama server...")
-    
-    # Use the absolute path to the ollama binary
-    subprocess.Popen(['/usr/local/bin/ollama', 'serve'])
-    time.sleep(5)  # Give the server time to start
-    
-    # Pull all models at once
+def pull_models():
+    """Pulls all required models."""
     models_to_pull = ["phi3:mini", "deepseek-coder:1.3b"]
     st.write(f"Pulling models: {', '.join(models_to_pull)}...")
+    
+    # Use the official ollama client to pull models.
+    # The `ollama` executable is now in the PATH, so the call works.
     for model in models_to_pull:
         try:
-            # Use the absolute path for pulling the model too
-            subprocess.run(['/usr/local/bin/ollama', 'pull', model], check=True)
+            os.system(f"ollama pull {model}")
             st.success(f"Model '{model}' pulled successfully.")
-        except subprocess.CalledProcessError as e:
+        except Exception as e:
             st.error(f"Failed to pull model '{model}': {e}")
 
 
@@ -32,10 +26,10 @@ def start_ollama_and_pull_models():
 st.set_page_config(layout="wide")
 st.title("My Local Chatbot")
 
-if "ollama_started" not in st.session_state:
+if "ollama_pulled" not in st.session_state:
     with st.spinner("Setting up the local LLM server... this may take a moment."):
-        start_ollama_and_pull_models()
-    st.session_state.ollama_started = True
+        pull_models()
+    st.session_state.ollama_pulled = True
 
 # --- Sidebar Inputs ---
 st.sidebar.header("Settings")
@@ -50,8 +44,7 @@ TOP_P = st.sidebar.slider("Top-p (nucleus sampling)", 0.0, 1.0, 0.9, 0.05)
 TOP_K = st.sidebar.slider("Top-k", 0, 100, 40, 5)
 MAX_TOKENS = st.sidebar.number_input("Max Tokens", min_value=256, max_value=16384, value=2048, step=256)
 
-# ... (rest of the code is the same) ...
-
+# ... (remaining code from your app.py) ...
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 if "memory" not in st.session_state:
