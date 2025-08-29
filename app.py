@@ -11,7 +11,7 @@ import os
 # A dictionary mapping display names to model info
 MODEL_MAP = {
     "TinyLlama (1.1B)": {
-        "repo_id": "TheBloke/TinyLlama-1.1B-Chat-v0.4-GGUF",
+        "repo_id": "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF",
         "filename": "tinyllama-1.1b-chat-v0.4.Q4_0.gguf",
         "type": "llama"
     },
