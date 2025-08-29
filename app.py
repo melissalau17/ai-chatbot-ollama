@@ -4,20 +4,46 @@ from langchain.memory import ConversationBufferMemory
 from langchain.memory.chat_message_histories import ChatMessageHistory
 from langchain.prompts import PromptTemplate
 from langchain_core.runnables import RunnableSequence
+from huggingface_hub import hf_hub_download
 import os
 
 # --- Model Definitions ---
-# A dictionary mapping display names to model file paths and types
+# A dictionary mapping display names to model info
 MODEL_MAP = {
     "TinyLlama (1.1B)": {
-        "path": "/app/models/tinyllama.gguf",
+        "repo_id": "TheBloke/TinyLlama-1.1B-Chat-v0.4-GGUF",
+        "filename": "tinyllama-1.1b-chat-v0.4.Q4_0.gguf",
         "type": "llama"
     },
     "Deepseek-Coder (1.3B)": {
-        "path": "/app/models/deepseek-coder-1.3b.gguf",
+        "repo_id": "TheBloke/deepseek-coder-1.3B-base-GGUF",
+        "filename": "deepseek-coder-1.3b-base-q4_K_M.gguf",
         "type": "deepseek"
     }
 }
+
+# --- Model Loading ---
+@st.cache_resource
+def download_model_from_hub(repo_id, filename):
+    st.write(f"Downloading model '{filename}' from Hugging Face Hub...")
+    model_path = hf_hub_download(repo_id=repo_id, filename=filename)
+    return model_path
+
+@st.cache_resource
+def load_llm(model_name):
+    """Loads the model once and caches it."""
+    model_info = MODEL_MAP[model_name]
+    
+    # Download the model file first
+    model_path = download_model_from_hub(model_info["repo_id"], model_info["filename"])
+
+    # Now load the model using the local file path
+    llm = CTransformers(
+        model=model_path,
+        model_type=model_info["type"],
+        config={'max_new_tokens': 2048, 'temperature': 0.7}
+    )
+    return llm
 
 # ----------------- Streamlit UI and Logic -----------------
 st.set_page_config(layout="wide")
@@ -26,18 +52,6 @@ st.title("My Local Chatbot")
 # Sidebar Inputs
 st.sidebar.header("Settings")
 selected_model_name = st.sidebar.selectbox("Choose a Model", list(MODEL_MAP.keys()))
-
-# Use st.cache_resource to load the LLM once
-@st.cache_resource
-def load_llm(model_name):
-    st.write(f"Loading the '{model_name}' model... this may take a moment.")
-    model_info = MODEL_MAP[model_name]
-    llm = CTransformers(
-        model=model_info["path"],
-        model_type=model_info["type"],
-        config={'max_new_tokens': 2048, 'temperature': 0.7}
-    )
-    return llm
 
 # Load the selected model
 llm = load_llm(selected_model_name)

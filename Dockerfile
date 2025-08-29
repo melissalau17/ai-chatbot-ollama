@@ -1,6 +1,6 @@
 FROM python:3.13.5-slim
 
-# Install system dependencies for ctransformers
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     libssl-dev \
@@ -9,19 +9,8 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a directory for the model files
+# Set the work directory and copy your application files
 WORKDIR /app
-RUN mkdir -p /app/models
-
-# Download the tinyllama model during the build
-RUN curl -L https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v0.4-GGUF/resolve/main/tinyllama-1.1b-chat-v0.4.Q4_0.gguf \
-    -o /app/models/tinyllama.gguf
-
-# Download the Deepseek model during the build
-RUN curl -L https://huggingface.co/TheBloke/deepseek-coder-1.3B-base-GGUF/resolve/main/deepseek-coder-1.3b-base-q4_K_M.gguf \
-    -o /app/models/deepseek-coder-1.3b.gguf
-
-# Copy your application files
 COPY requirements.txt ./
 COPY app.py ./
 
