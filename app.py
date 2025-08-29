@@ -16,7 +16,7 @@ MODEL_MAP = {
     },
     "Deepseek-Coder (1.3B)": {
         "repo_id": "TheBloke/deepseek-coder-1.3b-base-GGUF",
-        "filename": "deepseek-coder-1.3b-base.q4_K_M.gguf",
+        "filename": "deepseek-coder-1.3b-base.Q4_K_M.gguf",
         "type": "deepseek"
     }
 }
