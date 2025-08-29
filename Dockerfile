@@ -37,7 +37,7 @@ RUN ollama pull llama2
 # --- Application Setup ---
 # Copy your requirements.txt and application source code
 COPY requirements.txt ./
-COPY src/ ./src/
+COPY app.py
 
 # Install Python dependencies
 RUN pip3 install --no-cache-dir -r requirements.txt
@@ -47,7 +47,7 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 # Create a simple shell script to run both Ollama and Streamlit
 # We use 'bash -c' to run multiple commands in a single entrypoint
 # Ollama runs in the background, Streamlit runs in the foreground
-ENTRYPOINT ["bash", "-c", "ollama serve & streamlit run src/streamlit-ollama-chatbot.py --server.port=8501 --server.address=0.0.0.0"]
+ENTRYPOINT ["bash", "-c", "ollama serve & streamlit run app.py --server.port=8501 --server.address=0.0.0.0"]
 
 # Expose Streamlit's default port
 EXPOSE 8501
