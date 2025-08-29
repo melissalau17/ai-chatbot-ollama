@@ -3,3 +3,4 @@ pandas
 streamlit
 langchain
 langchain-ollama
+langchain-community
