@@ -7,17 +7,22 @@ from langchain_core.runnables import RunnableSequence
 import subprocess
 import time
 
-# Function to start Ollama and pull model
-def start_ollama_and_pull_model():
-    # Start Ollama server in a background process
+# --- Ollama Setup ---
+def start_ollama_and_pull_models():
+    """Starts the Ollama server and pulls all required models."""
     st.write("Starting Ollama server...")
     subprocess.Popen(['ollama', 'serve'])
-    time.sleep(5) # Give it time to start
-
-    # Now, pull the model
-    st.write("Pulling phi3:mini model...")
-    subprocess.run(['ollama', 'pull', 'phi3:mini'], check=True)
-    st.success("Model pulled successfully!")
+    time.sleep(5)  # Give the server time to start
+    
+    # Pull all models at once
+    models_to_pull = ["phi3:mini", "deepseek-coder:1.3b"]
+    st.write(f"Pulling models: {', '.join(models_to_pull)}...")
+    for model in models_to_pull:
+        try:
+            subprocess.run(['ollama', 'pull', model], check=True)
+            st.success(f"Model '{model}' pulled successfully.")
+        except subprocess.CalledProcessError as e:
+            st.error(f"Failed to pull model '{model}': {e}")
 
 
 # ----------------- Streamlit UI and Logic -----------------
@@ -27,13 +32,13 @@ st.title("My Local Chatbot")
 # Use session state to run this setup only once
 if "ollama_started" not in st.session_state:
     with st.spinner("Setting up the local LLM server... this may take a moment."):
-        start_ollama_and_pull_model()
+        start_ollama_and_pull_models()
     st.session_state.ollama_started = True
 
-# Sidebar Inputs (rest of your app code)
+# --- Sidebar Inputs ---
 st.sidebar.header("Settings")
-MODEL = "phi3:mini"
-st.sidebar.selectbox("Choose a Model", [MODEL], index=0)
+model_options = ["phi3:mini", "deepseek-coder:1.3b"]
+MODEL = st.sidebar.selectbox("Choose a Model", model_options)
 
 MAX_HISTORY = st.sidebar.number_input("Max History", min_value=1, max_value=10, value=2, step=1)
 # ... rest of your sidebar code ...
@@ -60,6 +65,7 @@ def clear_memory():
 if st.sidebar.button("Clear Conversation History"):
     clear_memory()
 
+# **IMPORTANT:** The `llm` object is now created with the selected MODEL variable
 llm = ChatOllama(
     model=MODEL,
     streaming=True,
@@ -67,7 +73,6 @@ llm = ChatOllama(
     top_p=TOP_P,
     top_k=TOP_K,
     num_predict=MAX_TOKENS,
-    # The base_url is localhost because it's running in the same container
     base_url="http://localhost:11434"
 )
 
