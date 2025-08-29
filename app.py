@@ -144,6 +144,6 @@ if prompt := st.chat_input("Say something"):
                 "history": formatted_history,
                 "summary": st.session_state.summary
             }):
-            full_response += chunk.content
+            full_response += chunk
             response_container.markdown(full_response)
     st.session_state.chat_history.append({"role": "assistant", "content": full_response})
