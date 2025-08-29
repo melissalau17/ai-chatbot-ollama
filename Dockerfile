@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
+RUN ollama pull phi3:mini:4k-instruct-q4_K_M
+RUN ollama pull deepseek-coder:1.3b
+
 # Copy your application files
 WORKDIR /app
 COPY requirements.txt ./
