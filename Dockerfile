@@ -11,14 +11,12 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
+# --- Add Ollama Installation ---
 # Download and install Ollama
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
-RUN ollama pull deepseek-coder:1.3b
-RUN ollama pull tinyllama
-
+# Copy your application files
 COPY requirements.txt ./
-COPY src/ ./src/
 COPY app.py ./
 
 # Install Python dependencies
