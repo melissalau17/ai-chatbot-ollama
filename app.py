@@ -11,7 +11,9 @@ import time
 def start_ollama_and_pull_models():
     """Starts the Ollama server and pulls all required models."""
     st.write("Starting Ollama server...")
-    subprocess.Popen(['ollama', 'serve'])
+    
+    # Use the absolute path to the ollama binary
+    subprocess.Popen(['/usr/local/bin/ollama', 'serve'])
     time.sleep(5)  # Give the server time to start
     
     # Pull all models at once
@@ -19,7 +21,8 @@ def start_ollama_and_pull_models():
     st.write(f"Pulling models: {', '.join(models_to_pull)}...")
     for model in models_to_pull:
         try:
-            subprocess.run(['ollama', 'pull', model], check=True)
+            # Use the absolute path for pulling the model too
+            subprocess.run(['/usr/local/bin/ollama', 'pull', model], check=True)
             st.success(f"Model '{model}' pulled successfully.")
         except subprocess.CalledProcessError as e:
             st.error(f"Failed to pull model '{model}': {e}")
@@ -29,7 +32,6 @@ def start_ollama_and_pull_models():
 st.set_page_config(layout="wide")
 st.title("My Local Chatbot")
 
-# Use session state to run this setup only once
 if "ollama_started" not in st.session_state:
     with st.spinner("Setting up the local LLM server... this may take a moment."):
         start_ollama_and_pull_models()
@@ -48,7 +50,8 @@ TOP_P = st.sidebar.slider("Top-p (nucleus sampling)", 0.0, 1.0, 0.9, 0.05)
 TOP_K = st.sidebar.slider("Top-k", 0, 100, 40, 5)
 MAX_TOKENS = st.sidebar.number_input("Max Tokens", min_value=256, max_value=16384, value=2048, step=256)
 
-# ... (remaining code from your app.py) ...
+# ... (rest of the code is the same) ...
+
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 if "memory" not in st.session_state:
@@ -65,7 +68,6 @@ def clear_memory():
 if st.sidebar.button("Clear Conversation History"):
     clear_memory()
 
-# **IMPORTANT:** The `llm` object is now created with the selected MODEL variable
 llm = ChatOllama(
     model=MODEL,
     streaming=True,
